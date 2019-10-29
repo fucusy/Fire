@@ -84,7 +84,8 @@ class FireCandidatesView: NSStackView {
         }
         if (self.window != nil) {
             let window = self.window as! FireCandidatesWindow
-            width = width > CGFloat(300) ? width : CGFloat(300)
+            let originWidth = originView.attributedStringValue.size().width + 10.0
+            width = originWidth > width ? originWidth : width
             window.updateFrame(viewWidth: width, viewHeight: CGFloat(window.height))
         }
         candidatesView.setViews(candidateViews, in: .leading)

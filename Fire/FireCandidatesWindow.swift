@@ -24,7 +24,6 @@ class FireCandidatesWindow: NSWindow {
         backgroundColor = .white
     }
     func updateWindow(cursorRect: NSRect, code: String, candidates: [Candidate], animate: Bool = false) {
-//        setFrameOrigin(NSMakePoint(origin.x + 3, origin.y - CGFloat(height) - 3))
         self.cursorRect = cursorRect
         view.updateView(code: code, candidates: candidates)
         orderFront(nil)

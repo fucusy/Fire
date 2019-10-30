@@ -21,7 +21,7 @@ class FireCandidatesWindow: NSWindow {
         self.contentView = view
         styleMask = .init(arrayLiteral: .borderless, .fullSizeContentView)
         isReleasedWhenClosed = false
-        backgroundColor = .white
+        backgroundColor = NSColor.init(red: 0.972549019, green: 0.972549019, blue: 1, alpha: 1.0)
     }
     func updateWindow(cursorRect: NSRect, code: String, candidates: [Candidate], animate: Bool = false) {
         self.cursorRect = cursorRect

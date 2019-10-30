@@ -55,7 +55,7 @@ class FireCandidatesView: NSStackView {
         let shownCode = getShownCode(candidate: candidate, origin: origin)
         let string = NSMutableAttributedString(string: "\(index+1).\(candidate.text)\(shownCode)", attributes: [
                 NSAttributedString.Key.foregroundColor: index == 0 ? NSColor.red : NSColor.init(red: 0.23, green: 0.23, blue: 0.23, alpha: 1),
-            NSAttributedString.Key.font: NSFont.userFont(ofSize: 20)!
+                NSAttributedString.Key.font: NSFont.messageFont(ofSize: 20)
             ])
         string.setAttributes([
             NSAttributedString.Key.foregroundColor: NSColor.init(red: 0.3, green: 0.3, blue: 0.3, alpha: 0.8),

@@ -55,6 +55,11 @@ class Fire: NSObject {
     var candidateCount: Int = 5
     var cloudinput: Bool = false
     
+    
+    var server: IMKServer = IMKServer.init(name: kConnectionName, bundleIdentifier: Bundle.main.bundleIdentifier)
+
+    private var db: OpaquePointer?
+    
     override init() {
         UserDefaults.standard.register(defaults: ["codeMode": 2, "candidateCount": 5, "cloudinput": false])
         codeMode = CodeMode(rawValue: UserDefaults.standard.integer(forKey: "codeMode"))!
@@ -64,6 +69,12 @@ class Fire: NSObject {
         UserDefaults.standard.addObserver(self, forKeyPath: "codeMode", options: [.new, .old, .initial], context: nil)
         UserDefaults.standard.addObserver(self, forKeyPath: "candidateCount", options: [.new, .old, .initial], context: nil)
         UserDefaults.standard.addObserver(self, forKeyPath: "cloudinput", options: [.new, .old, .initial], context: nil)
+        
+        
+        let dbPath = Bundle.main.path(forResource: "table", ofType: "sqlite")
+        if sqlite3_open(dbPath, &db) == SQLITE_OK {
+            print("open database ok")
+        }
     }
     override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
         let newVal = change![NSKeyValueChangeKey.newKey]
@@ -80,36 +91,28 @@ class Fire: NSObject {
     private func getQuerySql(code: String = "", page: Int = 1) -> String {
         let tableType = codeMode == .WubiPinyin ? "" : "type = '\(codeMode == .Pinyin ? "py" : "wb")' and "
         let sql = "select case when t2.type = 'wb' then min(t1.code) else max(t1.code) end as code, t1.text, t2.type from dict_default t1 inner join (select min(id) as id, code, text, type from dict_default where \(tableType)code like '\(code)%' group by id, text order by length(code)) t2 on t1.text = t2.text and t1.type = 'wb' group by t1.text order by case when t2.code = '\(code)' then t2.id when t2.code like '\(code)%' then 10000000 + t2.id end limit \((page - 1) * candidateCount), \(candidateCount)"
-        print(sql)
+//        print(sql)
         return sql
     }
     
-    var server: IMKServer = IMKServer.init(name: kConnectionName, bundleIdentifier: Bundle.main.bundleIdentifier)
     func getCandidates(origin: NSAttributedString = NSAttributedString(), page: Int = 1) -> [Candidate] {
         if origin.length <= 0 {
             return []
         }
         NSLog("get local candidate, origin: \(origin.string)")
-        var db: OpaquePointer?
         var candidates: [Candidate] = []
-        let dbPath = Bundle.main.path(forResource: "table", ofType: "sqlite")
-        if sqlite3_open(dbPath, &db) == SQLITE_OK {
-            let sql = getQuerySql(code: origin.string, page: page)
-            var queryStatement: OpaquePointer?
-            if sqlite3_prepare_v2(db, sql, -1, &queryStatement, nil) == SQLITE_OK {
-//                NSLog("list")
-                while(sqlite3_step(queryStatement) == SQLITE_ROW) {
-                    let code = String.init(cString: sqlite3_column_text(queryStatement, 0))
-                    let text = String.init(cString: sqlite3_column_text(queryStatement, 1))
-                    let type = String.init(cString: sqlite3_column_text(queryStatement, 2))
-                    let candidate = Candidate(code: code, text: text, type: type)
-//                    NSLog("text \(text)")
-                    candidates.append(candidate)
-                }
-                sqlite3_finalize(queryStatement)
+        let sql = getQuerySql(code: origin.string, page: page)
+        var queryStatement: OpaquePointer?
+        if sqlite3_prepare_v2(db, sql, -1, &queryStatement, nil) == SQLITE_OK {
+            while(sqlite3_step(queryStatement) == SQLITE_ROW) {
+                let code = String.init(cString: sqlite3_column_text(queryStatement, 0))
+                let text = String.init(cString: sqlite3_column_text(queryStatement, 1))
+                let type = String.init(cString: sqlite3_column_text(queryStatement, 2))
+                let candidate = Candidate(code: code, text: text, type: type)
+                candidates.append(candidate)
             }
+            sqlite3_finalize(queryStatement)
         }
-        sqlite3_close(db)
         return candidates
     }
     

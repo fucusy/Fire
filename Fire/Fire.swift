@@ -80,7 +80,7 @@ class Fire: NSObject {
     private func getQuerySql(code: String = "", page: Int = 1) -> String {
         let tableType = codeMode == .WubiPinyin ? "" : "type = '\(codeMode == .Pinyin ? "py" : "wb")' and "
         let sql = "select case when t2.type = 'wb' then min(t1.code) else max(t1.code) end as code, t1.text, t2.type from dict_default t1 inner join (select min(id) as id, code, text, type from dict_default where \(tableType)code like '\(code)%' group by id, text order by length(code)) t2 on t1.text = t2.text and t1.type = 'wb' group by t1.text order by case when t2.code = '\(code)' then t2.id when t2.code like '\(code)%' then 10000000 + t2.id end limit \((page - 1) * candidateCount), \(candidateCount)"
-        print(sql)
+        NSLog("returning sql \(sql)")
         return sql
     }
     
@@ -92,18 +92,30 @@ class Fire: NSObject {
         NSLog("get local candidate, origin: \(origin.string)")
         var db: OpaquePointer?
         var candidates: [Candidate] = []
+        NSLog("Hello, First added NSLOg")
+        if(origin.string == "zdt"){
+            NSLog("seeing zdt")
+            let date = Date()
+            let calendar = Calendar.current
+            let year = calendar.component(.year, from: date)
+            let month = calendar.component(.month, from: date)
+            let day = calendar.component(.day, from: date)
+            let text = String(format:"%04d-%02d-%02d", year, month, day)
+            let candidate = Candidate(code: "zdt", text: text, type: "wb")
+            candidates.append(candidate)
+        }
         let dbPath = Bundle.main.path(forResource: "table", ofType: "sqlite")
         if sqlite3_open(dbPath, &db) == SQLITE_OK {
             let sql = getQuerySql(code: origin.string, page: page)
             var queryStatement: OpaquePointer?
             if sqlite3_prepare_v2(db, sql, -1, &queryStatement, nil) == SQLITE_OK {
-//                NSLog("list")
+                NSLog("list")
                 while(sqlite3_step(queryStatement) == SQLITE_ROW) {
                     let code = String.init(cString: sqlite3_column_text(queryStatement, 0))
                     let text = String.init(cString: sqlite3_column_text(queryStatement, 1))
                     let type = String.init(cString: sqlite3_column_text(queryStatement, 2))
                     let candidate = Candidate(code: code, text: text, type: type)
-//                    NSLog("text \(text)")
+                    NSLog("text \(text)")
                     candidates.append(candidate)
                 }
                 sqlite3_finalize(queryStatement)

@@ -16,10 +16,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     let fire: Fire
     override init() {
         NSLog("terminate runing")
-//        let running = NSRunningApplication.runningApplications(withBundleIdentifier: NSRunningApplication.current.bundleIdentifier!).first
-//        if (running != nil && NSRunningApplication.current != running) {
-//            running?.forceTerminate()
-//        }
+        let running = NSRunningApplication.runningApplications(withBundleIdentifier: NSRunningApplication.current.bundleIdentifier!).first
+        if (running != nil && NSRunningApplication.current != running) {
+            running?.forceTerminate()
+        }
         fire = Fire.shared
     }
     func applicationDidFinishLaunching(_ aNotification: Notification) {
@@ -40,7 +40,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 sourceList?.takeUnretainedValue(), i)).takeUnretainedValue();
             let ptr = TISGetInputSourceProperty(inputSource, kTISPropertyInputSourceID)
             let sourceID = Unmanaged<CFString>.fromOpaque(ptr!).takeUnretainedValue() as NSString
-//            NSLog("examining input source '%@", sourceID);
+            NSLog("examining input source '%@", sourceID);
             if (sourceID.isEqual(to: kSourceID) ) || sourceID.isEqual(to: kInputModeID) {
                 TISEnableInputSource(inputSource);
                 NSLog("Enabled input source: %@", sourceID);
@@ -52,7 +52,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 }
           }
         }
-        NSLog("lanched")
+        NSLog("lanched, NSLog updated")
     }
     
     func applicationWillTerminate(_ aNotification: Notification) {

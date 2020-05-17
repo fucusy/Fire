@@ -118,6 +118,7 @@ class FireInputController: IMKInputController {
     }
     
     override func commitComposition(_ sender: Any!) {
+        NSLog("NSLog Added")
         NSLog("commitComposition: %@", composedString(sender) as! NSAttributedString)
         client().insertText(composedString(sender), replacementRange: replacementRange())
         clean()

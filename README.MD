@@ -14,8 +14,10 @@
 - zdt 为当前日期，如2020-05-19
 - 输入一串英文后，切换成英文时，把此时的英文自动输入，而不是自动消失
 
+英文模式下输入
+- dt 为当前日期
+
 ### TODO
-- 英文模式下的自动字符替换
 - 用户测试
 - 集成测试自动化UI功能测试
 - Bring auto complete like tabNine into input method

@@ -18,6 +18,7 @@
 - dt 为当前日期
 
 ### TODO
+- z开头的话，可以输入拼音，并提示五笔打字方法 
 - 用户测试
 - 集成测试自动化UI功能测试
 - Bring auto complete like tabNine into input method
